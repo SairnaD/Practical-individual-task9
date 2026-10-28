@@ -14,5 +14,4 @@ public class UpdateBookRequest {
     private String genre;
     @Positive(message = "Publication year must be positive number")
     private int publicationYear;
-    public boolean available;
 }

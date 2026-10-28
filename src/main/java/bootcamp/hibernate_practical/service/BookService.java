@@ -22,6 +22,11 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
+    private Book findBookOrThrow(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
     @Transactional
     public BookResponse createBook(CreateBookRequest request) {
         Book book = new Book(
@@ -42,29 +47,23 @@ public class BookService {
     }
 
     public BookResponse getBookById(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+        Book book = findBookOrThrow(id);
         return mapToResponse(book);
     }
 
     @Transactional
     public BookResponse updateBook(Long id, UpdateBookRequest request) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+        Book book = findBookOrThrow(id);
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
         book.setGenre(request.getGenre());
         book.setPublicationYear(request.getPublicationYear());
-        book.setAvailable(request.isAvailable());
-        book.setBorrowedStatus(!request.isAvailable());
         return mapToResponse(bookRepository.save(book));
     }
 
     @Transactional
     public void deleteBook(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
-        bookRepository.delete(book);
+        bookRepository.delete(findBookOrThrow(id));
     }
 
     public List<BookResponse> searchByTitle(String title) {
@@ -109,8 +108,7 @@ public class BookService {
 
     @Transactional
     public BookResponse borrowBook(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+        Book book = findBookOrThrow(id);
         if (book.isBorrowedStatus()) {
             throw new BookAlreadyBorrowedException(id);
         }
@@ -121,8 +119,7 @@ public class BookService {
 
     @Transactional
     public BookResponse returnBook(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(id));
+        Book book = findBookOrThrow(id);
         if (!book.isBorrowedStatus()) {
             throw new BookNotBorrowedException(id);
         }
