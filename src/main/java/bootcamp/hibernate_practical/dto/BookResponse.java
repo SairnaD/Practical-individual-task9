@@ -1,7 +1,6 @@
 package bootcamp.hibernate_practical.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 @AllArgsConstructor

@@ -9,6 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import bootcamp.hibernate_practical.exception.BookAlreadyBorrowedException;
+import bootcamp.hibernate_practical.exception.BookNotBorrowedException;
+import bootcamp.hibernate_practical.exception.BookNotFoundException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 @Controller
 public class BookViewController {
     private final BookService bookService;
@@ -48,6 +53,26 @@ public class BookViewController {
     @PostMapping("/books/{id}/delete")
     public String delete(@PathVariable Long id) {
         bookService.deleteBook(id);
+        return "redirect:/books";
+    }
+
+    @PostMapping("/books/{id}/borrow")
+    public String borrow(@PathVariable Long id, RedirectAttributes redirect) {
+        try {
+            bookService.borrowBook(id);
+        } catch (BookAlreadyBorrowedException | BookNotFoundException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/books";
+    }
+
+    @PostMapping("/books/{id}/return")
+    public String giveBack(@PathVariable Long id, RedirectAttributes redirect) {
+        try {
+            bookService.returnBook(id);
+        } catch (BookNotBorrowedException | BookNotFoundException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/books";
     }
 

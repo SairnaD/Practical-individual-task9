@@ -2,51 +2,100 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Books</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Books</h1>
+<div class="container">
 
-<p>
-    Logged in as <b th:text="${username}"></b>
-<form th:action="@{/logout}" method="post" style="display:inline">
-    <button type="submit">Log out</button>
-</form>
-</p>
-
-<table border="1" cellpadding="5">
-    <tr>
-        <th>ID</th><th>Title</th><th>Author</th><th>Genre</th>
-        <th>Year</th><th>Available</th><th th:if="${isAdmin}">Actions</th>
-    </tr>
-    <tr th:each="book : ${books}">
-        <td th:text="${book.id}"></td>
-        <td th:text="${book.title}"></td>
-        <td th:text="${book.author}"></td>
-        <td th:text="${book.genre}"></td>
-        <td th:text="${book.publicationYear}"></td>
-        <td th:text="${book.available}"></td>
-        <td th:if="${isAdmin}">
-            <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
-                <button type="submit">Delete</button>
+    <div class="topbar">
+        <h1>Library</h1>
+        <div class="user-box">
+            <span th:text="${username}"></span>
+            <span class="role" th:text="${isAdmin} ? 'ADMIN' : 'USER'"></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="secondary">Log out</button>
             </form>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
 
-<div th:if="${isAdmin}">
-    <h2>Add book</h2>
-    <form th:action="@{/books}" th:object="${bookForm}" method="post">
-        <div><label>Title: <input type="text" th:field="*{title}"></label>
-            <span th:errors="*{title}" style="color:red"></span></div>
-        <div><label>Author: <input type="text" th:field="*{author}"></label>
-            <span th:errors="*{author}" style="color:red"></span></div>
-        <div><label>Genre: <input type="text" th:field="*{genre}"></label>
-            <span th:errors="*{genre}" style="color:red"></span></div>
-        <div><label>Year: <input type="number" th:field="*{publicationYear}"></label>
-            <span th:errors="*{publicationYear}" style="color:red"></span></div>
-        <button type="submit">Add</button>
-    </form>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="card">
+        <h2>Books</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th><th>Title</th><th>Author</th><th>Genre</th>
+                    <th>Year</th><th>Status</th><th th:if="${isAdmin}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(books)}">
+                    <td class="empty" colspan="7">No books yet</td>
+                </tr>
+                <tr th:each="book : ${books}">
+                    <td th:text="${book.id}"></td>
+                    <td th:text="${book.title}"></td>
+                    <td th:text="${book.author}"></td>
+                    <td th:text="${book.genre}"></td>
+                    <td th:text="${book.publicationYear}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${book.available} ? 'badge-ok' : 'badge-warn'"
+                              th:text="${book.available} ? 'Available' : 'Borrowed'"></span>
+                    </td>
+                    <td th:if="${isAdmin}">
+                        <div class="actions">
+                            <form th:if="${book.available}" th:action="@{/books/{id}/borrow(id=${book.id})}" method="post">
+                                <button type="submit" class="small">Borrow</button>
+                            </form>
+                            <form th:unless="${book.available}" th:action="@{/books/{id}/return(id=${book.id})}" method="post">
+                                <button type="submit" class="small secondary">Return</button>
+                            </form>
+                            <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post"
+                                  onsubmit="return confirm('Delete this book?')">
+                                <button type="submit" class="danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" th:if="${isAdmin}">
+        <h2>Add book</h2>
+        <form th:action="@{/books}" th:object="${bookForm}" method="post">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="title">Title</label>
+                    <input id="title" type="text" th:field="*{title}">
+                    <span class="error" th:errors="*{title}"></span>
+                </div>
+                <div class="field">
+                    <label for="author">Author</label>
+                    <input id="author" type="text" th:field="*{author}">
+                    <span class="error" th:errors="*{author}"></span>
+                </div>
+                <div class="field">
+                    <label for="genre">Genre</label>
+                    <input id="genre" type="text" th:field="*{genre}">
+                    <span class="error" th:errors="*{genre}"></span>
+                </div>
+                <div class="field">
+                    <label for="publicationYear">Year</label>
+                    <input id="publicationYear" type="number" th:field="*{publicationYear}">
+                    <span class="error" th:errors="*{publicationYear}"></span>
+                </div>
+            </div>
+            <button type="submit">Add book</button>
+        </form>
+    </div>
+
 </div>
 </body>
 </html>

@@ -2,18 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Library login</h1>
+<div class="login-wrap">
+    <div class="card login-card">
+        <h1>Library</h1>
+        <p class="sub">Please sign in to continue</p>
 
-<p th:if="${param.error}" style="color:red">Invalid username or password</p>
-<p th:if="${param.logout}">You have been logged out</p>
+        <div class="alert alert-error" th:if="${param.error}">Invalid username or password</div>
+        <div class="alert alert-info" th:if="${param.logout}">You have been logged out</div>
 
-<form th:action="@{/login}" method="post">
-    <div><label>Username: <input type="text" name="username" autofocus></label></div>
-    <div><label>Password: <input type="password" name="password"></label></div>
-    <button type="submit">Log in</button>
-</form>
+        <form th:action="@{/login}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" autofocus>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password">
+            </div>
+            <button type="submit">Log in</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
